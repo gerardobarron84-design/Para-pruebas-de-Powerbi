@@ -1,0 +1,80 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Power BI Embedded</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/powerbi-client@2.23.1/dist/powerbi.min.js"></script>
+
+    <style>
+        html, body {
+            margin: 0;
+            height: 100%;
+            width: 100%;
+        }
+
+        #reportContainer {
+            height: 100vh;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+
+<div id="reportContainer"></div>
+
+<script>
+
+async function cargarReporte() {
+
+    try {
+
+        const response = await fetch(
+            "https://default3b416f45d985486e94faa2be0d7ac5.62.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/0479300ca10a40519fe8f269de90a4c2/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=UrH3fMcm0wGmsQDgPPGY2y072KVQyXe80N-7JsISGrU",
+            {
+                method: "POST"
+            });
+
+        const data = await response.json();
+
+        const models = window['powerbi-client'].models;
+
+        const config = {
+            type: "report",
+            id: data.reportId,
+            embedUrl: data.embedUrl,
+            accessToken: data.embedToken,
+            tokenType: models.TokenType.Embed,
+            settings: {
+                panes: {
+                    filters: {
+                        visible: false
+                    }
+                }
+            }
+        };
+
+        powerbi.embed(
+            document.getElementById("reportContainer"),
+            config
+        );
+
+    } catch (err) {
+
+        document.body.innerHTML =
+            "<h2>Error cargando reporte</h2><pre>" +
+            err +
+            "</pre>";
+
+        console.error(err);
+    }
+}
+
+cargarReporte();
+
+</script>
+
+</body>
+</html>
